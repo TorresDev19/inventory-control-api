@@ -39,6 +39,3 @@ This project follows a layered architecture:
 This project was built as a learning-focused, production-ready backend,
 
 designed to demonstrate best practices in Java backend development.
-
-
-
