@@ -1,6 +1,7 @@
 package com.torresdev.inventory.entity;
 
 import jakarta.persistence.*;
+
 import java.time.OffsetDateTime;
 import java.util.UUID;
 
@@ -9,7 +10,7 @@ import java.util.UUID;
 public class StockMovement {
 
     @Id
-    @GeneratedValue
+    @Column(nullable = false)
     private UUID id;
 
     @Column(name = "product_id", nullable = false)
@@ -20,29 +21,30 @@ public class StockMovement {
 
     @Enumerated(EnumType.STRING)
     @Column(name = "movement_type", nullable = false)
-    private MovementType movementType;
+    private MovementType type;
 
     @Column(name = "created_at", nullable = false)
     private OffsetDateTime createdAt;
 
-    // 🔒 Construtor padrão exigido pelo JPA
     protected StockMovement() {
+        // JPA only
     }
 
-    // ✅ ESTE é o construtor que o service está usando
     public StockMovement(
             UUID productId,
             Integer quantity,
-            MovementType movementType,
+            MovementType type,
             OffsetDateTime createdAt
     ) {
+        this.id = UUID.randomUUID();
         this.productId = productId;
         this.quantity = quantity;
-        this.movementType = movementType;
+        this.type = type;
         this.createdAt = createdAt;
     }
 
-    // Getters (JPA precisa deles)
+    // ========= GETTERS =========
+
     public UUID getId() {
         return id;
     }
@@ -55,8 +57,8 @@ public class StockMovement {
         return quantity;
     }
 
-    public MovementType getMovementType() {
-        return movementType;
+    public MovementType getType() {
+        return type;
     }
 
     public OffsetDateTime getCreatedAt() {
