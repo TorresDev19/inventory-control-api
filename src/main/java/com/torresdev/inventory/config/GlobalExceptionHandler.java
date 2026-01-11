@@ -1,54 +1,53 @@
 package com.torresdev.inventory.config;
 
 import com.torresdev.inventory.error.ApiErrorResponse;
+import com.torresdev.inventory.exception.InsufficientStockException;
+import com.torresdev.inventory.exception.ProductNotFoundException;
 import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
-import com.torresdev.inventory.exception.ProductNotFoundException;
+
+import java.time.OffsetDateTime;
 
 @RestControllerAdvice
 public class GlobalExceptionHandler {
 
-        @ExceptionHandler(Exception.class)
-        public ResponseEntity<ApiErrorResponse> handleGenericException(Exception ex) {
+    // =========================
+    // PRODUTO NÃO ENCONTRADO
+    // =========================
+    @ExceptionHandler(ProductNotFoundException.class)
+    public ApiErrorResponse handleProductNotFound(ProductNotFoundException ex) {
+        return new ApiErrorResponse(
+                HttpStatus.NOT_FOUND.value(),
+                "Product not found",
+                ex.getMessage(),
+                OffsetDateTime.now()
+        );
+    }
 
-                ApiErrorResponse errorResponse = new ApiErrorResponse(
-                                HttpStatus.INTERNAL_SERVER_ERROR.value(),
-                                HttpStatus.INTERNAL_SERVER_ERROR.getReasonPhrase(),
-                                "Unexpected internal server error");
+    // =========================
+    // ESTOQUE INSUFICIENTE
+    // =========================
+    @ExceptionHandler(InsufficientStockException.class)
+    public ApiErrorResponse handleInsufficientStock(InsufficientStockException ex) {
+        return new ApiErrorResponse(
+                HttpStatus.BAD_REQUEST.value(),
+                "Insufficient stock",
+                ex.getMessage(),
+                OffsetDateTime.now()
+        );
+    }
 
-                return new ResponseEntity<>(errorResponse, HttpStatus.INTERNAL_SERVER_ERROR);
-        }
-
-        @ExceptionHandler(MethodArgumentNotValidException.class)
-        public ResponseEntity<ApiErrorResponse> handleValidationException(MethodArgumentNotValidException ex) {
-
-                String message = ex.getBindingResult()
-                                .getFieldErrors()
-                                .stream()
-                                .findFirst()
-                                .map(error -> error.getField() + ": " + error.getDefaultMessage())
-                                .orElse("Validation error");
-
-                ApiErrorResponse errorResponse = new ApiErrorResponse(
-                                HttpStatus.BAD_REQUEST.value(),
-                                HttpStatus.BAD_REQUEST.getReasonPhrase(),
-                                message);
-
-                return new ResponseEntity<>(errorResponse, HttpStatus.BAD_REQUEST);
-        }
-
-        @ExceptionHandler(ProductNotFoundException.class)
-        public ResponseEntity<ApiErrorResponse> handleProductNotFound(ProductNotFoundException ex) {
-
-                ApiErrorResponse errorResponse = new ApiErrorResponse(
-                                HttpStatus.NOT_FOUND.value(),
-                                HttpStatus.NOT_FOUND.getReasonPhrase(),
-                                ex.getMessage());
-
-                return new ResponseEntity<>(errorResponse, HttpStatus.NOT_FOUND);
-        }
-
+    // =========================
+    // ERRO GENÉRICO
+    // =========================
+    @ExceptionHandler(Exception.class)
+    public ApiErrorResponse handleGenericException(Exception ex) {
+        return new ApiErrorResponse(
+                HttpStatus.INTERNAL_SERVER_ERROR.value(),
+                "Internal Server Error",
+                "Unexpected internal server error",
+                OffsetDateTime.now()
+        );
+    }
 }

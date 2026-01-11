@@ -9,11 +9,16 @@ public class ApiErrorResponse {
     private String message;
     private OffsetDateTime timestamp;
 
-    public ApiErrorResponse(int status, String error, String message) {
+    public ApiErrorResponse(
+            int status,
+            String error,
+            String message,
+            OffsetDateTime timestamp
+    ) {
         this.status = status;
         this.error = error;
         this.message = message;
-        this.timestamp = OffsetDateTime.now();
+        this.timestamp = timestamp;
     }
 
     public int getStatus() {
