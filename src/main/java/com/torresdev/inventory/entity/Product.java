@@ -1,7 +1,6 @@
 package com.torresdev.inventory.entity;
 
 import jakarta.persistence.*;
-
 import java.time.OffsetDateTime;
 import java.util.UUID;
 
@@ -16,32 +15,54 @@ public class Product {
     @Column(nullable = false)
     private String name;
 
-    @Column(name = "minimum_stock", nullable = false)
+    @Column(nullable = false)
+    private String description;
+
+    @Column(nullable = false)
     private Integer minimumStock;
 
     @Column(nullable = false)
-    private boolean active;
+    private boolean active = true;
 
-    @Column(name = "created_at", nullable = false)
-    private OffsetDateTime createdAt;
+    @Column(nullable = false, updatable = false)
+    private OffsetDateTime createdAt = OffsetDateTime.now();
 
     protected Product() {
+        // JPA
     }
 
-    public Product(String name, Integer minimumStock) {
+    public Product(String name, String description, Integer minimumStock) {
         this.name = name;
+        this.description = description;
         this.minimumStock = minimumStock;
-        this.active = true;
-        this.createdAt = OffsetDateTime.now();
     }
 
+    // =========================
+    // DOMAIN METHODS
+    // =========================
+    public void update(String name, String description, Integer minimumStock) {
+        this.name = name;
+        this.description = description;
+        this.minimumStock = minimumStock;
+    }
+
+    public void deactivate() {
+        this.active = false;
+    }
+
+    // =========================
     // GETTERS
+    // =========================
     public UUID getId() {
         return id;
     }
 
     public String getName() {
         return name;
+    }
+
+    public String getDescription() {
+        return description;
     }
 
     public Integer getMinimumStock() {
@@ -54,15 +75,5 @@ public class Product {
 
     public OffsetDateTime getCreatedAt() {
         return createdAt;
-    }
-
-    // DOMAIN BEHAVIOR
-    public void update(String name, Integer minimumStock) {
-        this.name = name;
-        this.minimumStock = minimumStock;
-    }
-
-    public void deactivate() {
-        this.active = false;
     }
 }
