@@ -20,33 +20,21 @@ public class ProductController {
         this.productService = productService;
     }
 
-    // =========================
-    // CREATE
-    // =========================
     @PostMapping
     public ProductResponseDTO create(@RequestBody @Valid ProductRequestDTO request) {
         return productService.create(request);
     }
 
-    // =========================
-    // LIST ALL
-    // =========================
     @GetMapping
     public List<ProductResponseDTO> listAll() {
         return productService.listAll();
     }
 
-    // =========================
-    // FIND BY ID
-    // =========================
     @GetMapping("/{id}")
     public ProductResponseDTO findById(@PathVariable UUID id) {
         return productService.findById(id);
     }
 
-    // =========================
-    // UPDATE
-    // =========================
     @PutMapping("/{id}")
     public ProductResponseDTO update(
             @PathVariable UUID id,
@@ -55,25 +43,16 @@ public class ProductController {
         return productService.update(id, request);
     }
 
-    // =========================
-    // DEACTIVATE
-    // =========================
     @DeleteMapping("/{id}")
     public void deactivate(@PathVariable UUID id) {
         productService.deactivate(id);
     }
 
-    // =========================
-    // LIST WITH STOCK
-    // =========================
     @GetMapping("/with-stock")
     public List<ProductWithStockResponseDTO> listAllWithStock() {
         return productService.listAllWithStock();
     }
 
-    // =========================
-    // LOW STOCK
-    // =========================
     @GetMapping("/low-stock")
     public List<ProductWithStockResponseDTO> listLowStock() {
         return productService.listLowStock();

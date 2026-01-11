@@ -1,11 +1,9 @@
 package com.torresdev.inventory.service;
 
+import com.torresdev.inventory.dto.stock.StockMovementResponseDTO;
 import com.torresdev.inventory.entity.MovementType;
-import com.torresdev.inventory.entity.Product;
 import com.torresdev.inventory.entity.StockMovement;
 import com.torresdev.inventory.exception.InsufficientStockException;
-import com.torresdev.inventory.exception.ProductNotFoundException;
-import com.torresdev.inventory.repository.ProductRepository;
 import com.torresdev.inventory.repository.StockMovementRepository;
 import org.springframework.stereotype.Service;
 
@@ -16,73 +14,71 @@ import java.util.UUID;
 @Service
 public class StockMovementService {
 
-    private final StockMovementRepository stockMovementRepository;
-    private final ProductRepository productRepository;
+    private final StockMovementRepository repository;
 
-    public StockMovementService(
-            StockMovementRepository stockMovementRepository,
-            ProductRepository productRepository
-    ) {
-        this.stockMovementRepository = stockMovementRepository;
-        this.productRepository = productRepository;
+    public StockMovementService(StockMovementRepository repository) {
+        this.repository = repository;
     }
 
     // =========================
-    // ENTRADA DE ESTOQUE
+    // ENTRADA
     // =========================
     public void registerEntry(UUID productId, Integer quantity) {
 
-        Product product = productRepository.findById(productId)
-                .orElseThrow(() -> new ProductNotFoundException("Product not found"));
-
         StockMovement movement = new StockMovement(
-                product.getId(),
+                productId,
                 quantity,
                 MovementType.ENTRY,
                 OffsetDateTime.now()
         );
 
-        stockMovementRepository.save(movement);
+        repository.save(movement);
     }
 
     // =========================
-    // SAÍDA DE ESTOQUE (COM REGRA)
+    // SAÍDA (COM VALIDAÇÃO)
     // =========================
     public void registerExit(UUID productId, Integer quantity) {
 
-        Product product = productRepository.findById(productId)
-                .orElseThrow(() -> new ProductNotFoundException("Product not found"));
-
         int currentStock = calculateCurrentStock(productId);
-        int resultingStock = currentStock - quantity;
 
-        if (resultingStock < product.getMinimumStock()) {
+        if (quantity > currentStock) {
             throw new InsufficientStockException(
-                    "Insufficient stock. Minimum allowed: " + product.getMinimumStock()
+                    "Insufficient stock. Current: " + currentStock + ", requested: " + quantity
             );
         }
 
         StockMovement movement = new StockMovement(
-                product.getId(),
+                productId,
                 quantity,
                 MovementType.EXIT,
                 OffsetDateTime.now()
         );
 
-        stockMovementRepository.save(movement);
+        repository.save(movement);
     }
 
     // =========================
-    // CONSULTAS
+    // HISTÓRICO
     // =========================
-    public List<StockMovement> listByProduct(UUID productId) {
-        return stockMovementRepository.findByProductId(productId);
+    public List<StockMovementResponseDTO> getHistory(UUID productId) {
+
+        return repository.findByProductId(productId)
+                .stream()
+                .map(movement -> new StockMovementResponseDTO(
+                        movement.getMovementType(),
+                        movement.getQuantity(),
+                        movement.getCreatedAt()
+                ))
+                .toList();
     }
 
+    // =========================
+    // SALDO ATUAL
+    // =========================
     public int calculateCurrentStock(UUID productId) {
 
-        List<StockMovement> movements =
-                stockMovementRepository.findByProductId(productId);
+        List<StockMovement> movements = repository.findByProductId(productId);
 
         int stock = 0;
 
