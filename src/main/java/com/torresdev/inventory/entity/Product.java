@@ -13,11 +13,8 @@ public class Product {
     @GeneratedValue
     private UUID id;
 
-    @Column(nullable = false, length = 150)
+    @Column(nullable = false)
     private String name;
-
-    @Column(columnDefinition = "text")
-    private String description;
 
     @Column(name = "minimum_stock", nullable = false)
     private Integer minimumStock;
@@ -28,31 +25,23 @@ public class Product {
     @Column(name = "created_at", nullable = false)
     private OffsetDateTime createdAt;
 
-    // JPA only
     protected Product() {
     }
 
-    // Constructor usado pelo Service
-    public Product(String name, String description, Integer minimumStock) {
+    public Product(String name, Integer minimumStock) {
         this.name = name;
-        this.description = description;
         this.minimumStock = minimumStock;
         this.active = true;
         this.createdAt = OffsetDateTime.now();
     }
 
-    // ===== Getters =====
-
+    // GETTERS
     public UUID getId() {
         return id;
     }
 
     public String getName() {
         return name;
-    }
-
-    public String getDescription() {
-        return description;
     }
 
     public Integer getMinimumStock() {
@@ -67,11 +56,9 @@ public class Product {
         return createdAt;
     }
 
-    // ===== Domain behavior =====
-
-    public void update(String name, String description, Integer minimumStock) {
+    // DOMAIN BEHAVIOR
+    public void update(String name, Integer minimumStock) {
         this.name = name;
-        this.description = description;
         this.minimumStock = minimumStock;
     }
 

@@ -2,6 +2,7 @@ package com.torresdev.inventory.controller;
 
 import com.torresdev.inventory.dto.product.ProductRequestDTO;
 import com.torresdev.inventory.dto.product.ProductResponseDTO;
+import com.torresdev.inventory.dto.product.ProductWithStockResponseDTO;
 import com.torresdev.inventory.service.ProductService;
 import jakarta.validation.Valid;
 import org.springframework.web.bind.annotation.*;
@@ -30,7 +31,7 @@ public class ProductController {
     }
 
     @GetMapping("/{id}")
-    public ProductResponseDTO findById(@PathVariable UUID id) {
+    public ProductWithStockResponseDTO findById(@PathVariable UUID id) {
         return productService.findById(id);
     }
 
@@ -41,7 +42,7 @@ public class ProductController {
     ) {
         return productService.update(id, request);
     }
-
+ 
     @DeleteMapping("/{id}")
     public void deactivate(@PathVariable UUID id) {
         productService.deactivate(id);

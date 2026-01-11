@@ -1,28 +1,27 @@
 package com.torresdev.inventory.dto.product;
 
-import java.time.OffsetDateTime;
 import java.util.UUID;
 
-public class ProductResponseDTO {
+public class ProductWithStockResponseDTO {
 
     private UUID id;
     private String name;
+    private int currentStock;
     private Integer minimumStock;
     private boolean active;
-    private OffsetDateTime createdAt;
 
-    public ProductResponseDTO(
+    public ProductWithStockResponseDTO(
             UUID id,
             String name,
+            int currentStock,
             Integer minimumStock,
-            boolean active,
-            OffsetDateTime createdAt
+            boolean active
     ) {
         this.id = id;
         this.name = name;
+        this.currentStock = currentStock;
         this.minimumStock = minimumStock;
         this.active = active;
-        this.createdAt = createdAt;
     }
 
     public UUID getId() {
@@ -33,15 +32,15 @@ public class ProductResponseDTO {
         return name;
     }
 
+    public int getCurrentStock() {
+        return currentStock;
+    }
+
     public Integer getMinimumStock() {
         return minimumStock;
     }
 
     public boolean isActive() {
         return active;
-    }
-
-    public OffsetDateTime getCreatedAt() {
-        return createdAt;
     }
 }

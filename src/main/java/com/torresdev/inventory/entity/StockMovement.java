@@ -21,29 +21,27 @@ public class StockMovement {
 
     @Enumerated(EnumType.STRING)
     @Column(name = "movement_type", nullable = false)
-    private MovementType type;
+    private MovementType movementType;
 
     @Column(name = "created_at", nullable = false)
     private OffsetDateTime createdAt;
 
     protected StockMovement() {
-        // JPA only
+    
     }
 
     public StockMovement(
             UUID productId,
             Integer quantity,
-            MovementType type,
+            MovementType movementType,
             OffsetDateTime createdAt
     ) {
         this.id = UUID.randomUUID();
         this.productId = productId;
         this.quantity = quantity;
-        this.type = type;
+        this.movementType = movementType;
         this.createdAt = createdAt;
     }
-
-    // ========= GETTERS =========
 
     public UUID getId() {
         return id;
@@ -57,8 +55,8 @@ public class StockMovement {
         return quantity;
     }
 
-    public MovementType getType() {
-        return type;
+    public MovementType getMovementType() {
+        return movementType;
     }
 
     public OffsetDateTime getCreatedAt() {

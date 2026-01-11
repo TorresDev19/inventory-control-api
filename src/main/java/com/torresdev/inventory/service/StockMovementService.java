@@ -1,8 +1,11 @@
 package com.torresdev.inventory.service;
 
-import com.torresdev.inventory.entity.StockMovement;
 import com.torresdev.inventory.entity.MovementType;
+import com.torresdev.inventory.entity.Product;
+import com.torresdev.inventory.entity.StockMovement;
 import com.torresdev.inventory.exception.InsufficientStockException;
+import com.torresdev.inventory.exception.ProductNotFoundException;
+import com.torresdev.inventory.repository.ProductRepository;
 import com.torresdev.inventory.repository.StockMovementRepository;
 import org.springframework.stereotype.Service;
 
@@ -13,65 +16,78 @@ import java.util.UUID;
 @Service
 public class StockMovementService {
 
-    private final StockMovementRepository repository;
+    private final StockMovementRepository stockMovementRepository;
+    private final ProductRepository productRepository;
 
-    public StockMovementService(StockMovementRepository repository) {
-        this.repository = repository;
+    public StockMovementService(
+            StockMovementRepository stockMovementRepository,
+            ProductRepository productRepository
+    ) {
+        this.stockMovementRepository = stockMovementRepository;
+        this.productRepository = productRepository;
     }
 
-    // =====================
+    // =========================
     // ENTRADA DE ESTOQUE
-    // =====================
+    // =========================
     public void registerEntry(UUID productId, Integer quantity) {
 
+        Product product = productRepository.findById(productId)
+                .orElseThrow(() -> new ProductNotFoundException("Product not found"));
+
         StockMovement movement = new StockMovement(
-                productId,
+                product.getId(),
                 quantity,
                 MovementType.ENTRY,
                 OffsetDateTime.now()
         );
 
-        repository.save(movement);
+        stockMovementRepository.save(movement);
     }
 
-    // =====================
-    // SAÍDA DE ESTOQUE (COM VALIDAÇÃO)
-    // =====================
+    // =========================
+    // SAÍDA DE ESTOQUE (COM REGRA)
+    // =========================
     public void registerExit(UUID productId, Integer quantity) {
 
-        int currentStock = calculateCurrentStock(productId);
+        Product product = productRepository.findById(productId)
+                .orElseThrow(() -> new ProductNotFoundException("Product not found"));
 
-        if (quantity > currentStock) {
+        int currentStock = calculateCurrentStock(productId);
+        int resultingStock = currentStock - quantity;
+
+        if (resultingStock < product.getMinimumStock()) {
             throw new InsufficientStockException(
-                    "Estoque insuficiente. Saldo atual: " + currentStock
+                    "Insufficient stock. Minimum allowed: " + product.getMinimumStock()
             );
         }
 
         StockMovement movement = new StockMovement(
-                productId,
+                product.getId(),
                 quantity,
                 MovementType.EXIT,
                 OffsetDateTime.now()
         );
 
-        repository.save(movement);
+        stockMovementRepository.save(movement);
     }
 
-    // =====================
+    // =========================
     // CONSULTAS
-    // =====================
+    // =========================
     public List<StockMovement> listByProduct(UUID productId) {
-        return repository.findByProductId(productId);
+        return stockMovementRepository.findByProductId(productId);
     }
 
     public int calculateCurrentStock(UUID productId) {
 
-        List<StockMovement> movements = repository.findByProductId(productId);
+        List<StockMovement> movements =
+                stockMovementRepository.findByProductId(productId);
 
         int stock = 0;
 
         for (StockMovement movement : movements) {
-            if (movement.getType() == MovementType.ENTRY) {
+            if (movement.getMovementType() == MovementType.ENTRY) {
                 stock += movement.getQuantity();
             } else {
                 stock -= movement.getQuantity();
