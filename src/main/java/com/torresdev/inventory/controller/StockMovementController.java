@@ -1,6 +1,6 @@
 package com.torresdev.inventory.controller;
 
-import com.torresdev.inventory.dto.stock.StockMovementResponseDTO;
+import com.torresdev.inventory.dto.stock.StockMovementReportDTO;
 import com.torresdev.inventory.service.StockMovementService;
 import jakarta.validation.constraints.Min;
 import org.springframework.web.bind.annotation.*;
@@ -18,7 +18,9 @@ public class StockMovementController {
         this.stockMovementService = stockMovementService;
     }
 
-    // ENTRADA
+    // =========================
+    // ENTRADA DE ESTOQUE
+    // =========================
     @PostMapping("/entry")
     public void registerEntry(
             @RequestParam UUID productId,
@@ -27,7 +29,9 @@ public class StockMovementController {
         stockMovementService.registerEntry(productId, quantity);
     }
 
-    // SAÍDA
+    // =========================
+    // SAÍDA DE ESTOQUE
+    // =========================
     @PostMapping("/exit")
     public void registerExit(
             @RequestParam UUID productId,
@@ -36,17 +40,19 @@ public class StockMovementController {
         stockMovementService.registerExit(productId, quantity);
     }
 
-    // SALDO
+    // =========================
+    // SALDO ATUAL
+    // =========================
     @GetMapping("/{productId}/balance")
     public int getCurrentStock(@PathVariable UUID productId) {
         return stockMovementService.calculateCurrentStock(productId);
     }
 
-    // HISTÓRICO
-    @GetMapping("/{productId}/history")
-    public List<StockMovementResponseDTO> getHistory(
-            @PathVariable UUID productId
-    ) {
-        return stockMovementService.getHistory(productId);
+    // =========================
+    // RELATÓRIO DE MOVIMENTAÇÕES
+    // =========================
+    @GetMapping("/report")
+    public List<StockMovementReportDTO> generateReport() {
+        return stockMovementService.generateReport();
     }
 }

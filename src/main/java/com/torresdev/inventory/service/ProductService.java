@@ -10,7 +10,6 @@ import org.springframework.stereotype.Service;
 
 import java.util.List;
 import java.util.UUID;
-import java.util.stream.Collectors;
 
 @Service
 public class ProductService {
@@ -44,31 +43,21 @@ public class ProductService {
     // LIST ALL
     // =========================
     public List<ProductResponseDTO> listAll() {
-        return productRepository.findAllByActiveTrue()
+        return productRepository.findAll()
                 .stream()
+                .filter(Product::isActive)
                 .map(this::toResponseDTO)
-                .collect(Collectors.toList());
-    }
-
-    // =========================
-    // LIST ALL WITH STOCK
-    // =========================
-    public List<ProductWithStockResponseDTO> listAllWithStock() {
-        return productRepository.findAllByActiveTrue()
-                .stream()
-                .map(this::toWithStockDTO)
-                .collect(Collectors.toList());
+                .toList();
     }
 
     // =========================
     // FIND BY ID
     // =========================
     public ProductResponseDTO findById(UUID id) {
-        return toResponseDTO(findActiveProduct(id));
-    }
+        Product product = productRepository.findById(id)
+                .orElseThrow(() -> new ProductNotFoundException("Product not found"));
 
-    public ProductWithStockResponseDTO findByIdWithStock(UUID id) {
-        return toWithStockDTO(findActiveProduct(id));
+        return toResponseDTO(product);
     }
 
     // =========================
@@ -76,7 +65,8 @@ public class ProductService {
     // =========================
     public ProductResponseDTO update(UUID id, ProductRequestDTO request) {
 
-        Product product = findActiveProduct(id);
+        Product product = productRepository.findById(id)
+                .orElseThrow(() -> new ProductNotFoundException("Product not found"));
 
         product.update(
                 request.getName(),
@@ -91,19 +81,44 @@ public class ProductService {
     // DEACTIVATE
     // =========================
     public void deactivate(UUID id) {
-        Product product = findActiveProduct(id);
+
+        Product product = productRepository.findById(id)
+                .orElseThrow(() -> new ProductNotFoundException("Product not found"));
+
         product.deactivate();
         productRepository.save(product);
     }
 
     // =========================
-    // INTERNAL HELPERS
+    // LOW STOCK
     // =========================
-    private Product findActiveProduct(UUID id) {
-        return productRepository.findByIdAndActiveTrue(id)
-                .orElseThrow(() -> new ProductNotFoundException("Product not found"));
+    public List<ProductWithStockResponseDTO> listLowStock() {
+
+        return productRepository.findAll()
+                .stream()
+                .filter(Product::isActive)
+                .map(product -> {
+
+                    int currentStock =
+                            stockMovementService.calculateCurrentStock(product.getId());
+
+                    return new ProductWithStockResponseDTO(
+                            product.getId(),
+                            product.getName(),
+                            product.getDescription(),
+                            product.getMinimumStock(),
+                            currentStock,
+                            product.isActive(),
+                            product.getCreatedAt()
+                    );
+                })
+                .filter(dto -> dto.getCurrentStock() < dto.getMinimumStock())
+                .toList();
     }
 
+    // =========================
+    // MAPPER
+    // =========================
     private ProductResponseDTO toResponseDTO(Product product) {
         return new ProductResponseDTO(
                 product.getId(),
@@ -114,31 +129,4 @@ public class ProductService {
                 product.getCreatedAt()
         );
     }
-
-    private ProductWithStockResponseDTO toWithStockDTO(Product product) {
-
-        int currentStock =
-                stockMovementService.calculateCurrentStock(product.getId());
-
-        return new ProductWithStockResponseDTO(
-                product.getId(),
-                product.getName(),
-                product.getDescription(),
-                product.getMinimumStock(),
-                currentStock,
-                product.isActive(),
-                product.getCreatedAt()
-        );
-    }
-
-
-    public List<ProductWithStockResponseDTO> listLowStock() {
-
-        return productRepository.findAllByActiveTrue()
-                .stream()
-                .map(this::toWithStockDTO)
-                .filter(p -> p.getCurrentStock() < p.getMinimumStock())
-                .toList();
-    }
-
 }

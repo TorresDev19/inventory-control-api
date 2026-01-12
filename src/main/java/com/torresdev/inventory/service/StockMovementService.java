@@ -1,6 +1,6 @@
 package com.torresdev.inventory.service;
 
-import com.torresdev.inventory.dto.stock.StockMovementResponseDTO;
+import com.torresdev.inventory.dto.stock.StockMovementReportDTO;
 import com.torresdev.inventory.entity.MovementType;
 import com.torresdev.inventory.entity.StockMovement;
 import com.torresdev.inventory.exception.InsufficientStockException;
@@ -21,7 +21,7 @@ public class StockMovementService {
     }
 
     // =========================
-    // ENTRADA
+    // ENTRADA DE ESTOQUE
     // =========================
     public void registerEntry(UUID productId, Integer quantity) {
 
@@ -36,16 +36,14 @@ public class StockMovementService {
     }
 
     // =========================
-    // SAÍDA (COM VALIDAÇÃO)
+    // SAÍDA DE ESTOQUE
     // =========================
     public void registerExit(UUID productId, Integer quantity) {
 
         int currentStock = calculateCurrentStock(productId);
 
-        if (quantity > currentStock) {
-            throw new InsufficientStockException(
-                    "Insufficient stock. Current: " + currentStock + ", requested: " + quantity
-            );
+        if (currentStock < quantity) {
+            throw new InsufficientStockException("Insufficient stock for exit");
         }
 
         StockMovement movement = new StockMovement(
@@ -56,21 +54,6 @@ public class StockMovementService {
         );
 
         repository.save(movement);
-    }
-
-    // =========================
-    // HISTÓRICO
-    // =========================
-    public List<StockMovementResponseDTO> getHistory(UUID productId) {
-
-        return repository.findByProductId(productId)
-                .stream()
-                .map(movement -> new StockMovementResponseDTO(
-                        movement.getMovementType(),
-                        movement.getQuantity(),
-                        movement.getCreatedAt()
-                ))
-                .toList();
     }
 
     // =========================
@@ -91,5 +74,18 @@ public class StockMovementService {
         }
 
         return stock;
+    }
+
+    public List<StockMovementReportDTO> generateReport() {
+
+        return repository.findAll()
+                .stream()
+                .map(movement -> new StockMovementReportDTO(
+                        movement.getProductId(),
+                        movement.getMovementType(),
+                        movement.getQuantity(),
+                        movement.getCreatedAt()
+                ))
+                .toList();
     }
 }

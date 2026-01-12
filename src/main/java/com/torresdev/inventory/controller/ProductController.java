@@ -48,13 +48,8 @@ public class ProductController {
         productService.deactivate(id);
     }
 
-    @GetMapping("/with-stock")
-    public List<ProductWithStockResponseDTO> listAllWithStock() {
-        return productService.listAllWithStock();
-    }
-
     @GetMapping("/low-stock")
-    public List<ProductWithStockResponseDTO> listLowStock() {
+    public List<ProductWithStockResponseDTO> lowStock() {
         return productService.listLowStock();
     }
 }

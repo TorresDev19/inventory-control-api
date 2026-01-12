@@ -10,7 +10,7 @@ import java.util.UUID;
 public class StockMovement {
 
     @Id
-    @Column(nullable = false)
+    @GeneratedValue
     private UUID id;
 
     @Column(name = "product_id", nullable = false)
@@ -27,7 +27,6 @@ public class StockMovement {
     private OffsetDateTime createdAt;
 
     protected StockMovement() {
-    
     }
 
     public StockMovement(
@@ -36,7 +35,6 @@ public class StockMovement {
             MovementType movementType,
             OffsetDateTime createdAt
     ) {
-        this.id = UUID.randomUUID();
         this.productId = productId;
         this.quantity = quantity;
         this.movementType = movementType;
@@ -61,5 +59,13 @@ public class StockMovement {
 
     public OffsetDateTime getCreatedAt() {
         return createdAt;
+    }
+
+    public boolean isEntry() {
+        return movementType == MovementType.ENTRY;
+    }
+
+    public boolean isExit() {
+        return movementType == MovementType.EXIT;
     }
 }

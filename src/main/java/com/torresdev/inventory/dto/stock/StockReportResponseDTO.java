@@ -1,49 +1,42 @@
-package com.torresdev.inventory.dto.product;
+package com.torresdev.inventory.dto.stock;
 
 import java.time.OffsetDateTime;
 import java.util.UUID;
 
-public class ProductWithStockResponseDTO {
+public class StockReportResponseDTO {
 
-    private UUID id;
+    private UUID productId;
     private String name;
-    private String description;
-    private Integer minimumStock;
+    private int minimumStock;
     private int currentStock;
-    private boolean active;
+    private String status;
     private OffsetDateTime createdAt;
 
-    public ProductWithStockResponseDTO(
-            UUID id,
+    public StockReportResponseDTO(
+            UUID productId,
             String name,
-            String description,
-            Integer minimumStock,
+            int minimumStock,
             int currentStock,
-            boolean active,
+            String status,
             OffsetDateTime createdAt
     ) {
-        this.id = id;
+        this.productId = productId;
         this.name = name;
-        this.description = description;
         this.minimumStock = minimumStock;
         this.currentStock = currentStock;
-        this.active = active;
+        this.status = status;
         this.createdAt = createdAt;
     }
 
-    public UUID getId() {
-        return id;
+    public UUID getProductId() {
+        return productId;
     }
 
     public String getName() {
         return name;
     }
 
-    public String getDescription() {
-        return description;
-    }
-
-    public Integer getMinimumStock() {
+    public int getMinimumStock() {
         return minimumStock;
     }
 
@@ -51,8 +44,8 @@ public class ProductWithStockResponseDTO {
         return currentStock;
     }
 
-    public boolean isActive() {
-        return active;
+    public String getStatus() {
+        return status;
     }
 
     public OffsetDateTime getCreatedAt() {
