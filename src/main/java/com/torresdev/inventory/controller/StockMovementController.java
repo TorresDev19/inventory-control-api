@@ -1,15 +1,16 @@
 package com.torresdev.inventory.controller;
 
-import com.torresdev.inventory.dto.stock.StockMovementReportDTO;
+import com.torresdev.inventory.dto.stock.StockMovementResponseDTO;
+import com.torresdev.inventory.entity.MovementType;
 import com.torresdev.inventory.service.StockMovementService;
-import jakarta.validation.constraints.Min;
 import org.springframework.web.bind.annotation.*;
 
+import java.time.OffsetDateTime;
 import java.util.List;
 import java.util.UUID;
 
 @RestController
-@RequestMapping("/api/stock")
+@RequestMapping("/api/stock-movements")
 public class StockMovementController {
 
     private final StockMovementService stockMovementService;
@@ -18,41 +19,30 @@ public class StockMovementController {
         this.stockMovementService = stockMovementService;
     }
 
-    // =========================
-    // ENTRADA DE ESTOQUE
-    // =========================
-    @PostMapping("/entry")
-    public void registerEntry(
-            @RequestParam UUID productId,
-            @RequestParam @Min(1) Integer quantity
+    @GetMapping("/product/{productId}")
+    public List<StockMovementResponseDTO> listByProduct(
+            @PathVariable UUID productId
     ) {
-        stockMovementService.registerEntry(productId, quantity);
+        return stockMovementService.listByProduct(productId);
     }
 
-    // =========================
-    // SAÍDA DE ESTOQUE
-    // =========================
-    @PostMapping("/exit")
-    public void registerExit(
-            @RequestParam UUID productId,
-            @RequestParam @Min(1) Integer quantity
+    @GetMapping("/product/{productId}/type/{type}")
+    public List<StockMovementResponseDTO> listByProductAndType(
+            @PathVariable UUID productId,
+            @PathVariable String type
     ) {
-        stockMovementService.registerExit(productId, quantity);
+        return stockMovementService.listByProductAndType(
+                productId,
+                MovementType.valueOf(type.toUpperCase())
+        );
     }
 
-    // =========================
-    // SALDO ATUAL
-    // =========================
-    @GetMapping("/{productId}/balance")
-    public int getCurrentStock(@PathVariable UUID productId) {
-        return stockMovementService.calculateCurrentStock(productId);
-    }
-
-    // =========================
-    // RELATÓRIO DE MOVIMENTAÇÕES
-    // =========================
-    @GetMapping("/report")
-    public List<StockMovementReportDTO> generateReport() {
-        return stockMovementService.generateReport();
+    @GetMapping("/product/{productId}/period")
+    public List<StockMovementResponseDTO> listByPeriod(
+            @PathVariable UUID productId,
+            @RequestParam OffsetDateTime start,
+            @RequestParam OffsetDateTime end
+    ) {
+        return stockMovementService.listByPeriod(productId, start, end);
     }
 }

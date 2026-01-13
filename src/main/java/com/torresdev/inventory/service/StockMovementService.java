@@ -1,9 +1,8 @@
 package com.torresdev.inventory.service;
 
-import com.torresdev.inventory.dto.stock.StockMovementReportDTO;
+import com.torresdev.inventory.dto.stock.StockMovementResponseDTO;
 import com.torresdev.inventory.entity.MovementType;
 import com.torresdev.inventory.entity.StockMovement;
-import com.torresdev.inventory.exception.InsufficientStockException;
 import com.torresdev.inventory.repository.StockMovementRepository;
 import org.springframework.stereotype.Service;
 
@@ -14,78 +13,79 @@ import java.util.UUID;
 @Service
 public class StockMovementService {
 
-    private final StockMovementRepository repository;
+    private final StockMovementRepository stockMovementRepository;
 
-    public StockMovementService(StockMovementRepository repository) {
-        this.repository = repository;
+    public StockMovementService(StockMovementRepository stockMovementRepository) {
+        this.stockMovementRepository = stockMovementRepository;
     }
 
-    // =========================
-    // ENTRADA DE ESTOQUE
-    // =========================
-    public void registerEntry(UUID productId, Integer quantity) {
+    /* =========================
+       LISTAGENS
+       ========================= */
 
-        StockMovement movement = new StockMovement(
-                productId,
-                quantity,
-                MovementType.ENTRY,
-                OffsetDateTime.now()
-        );
-
-        repository.save(movement);
-    }
-
-    // =========================
-    // SAÍDA DE ESTOQUE
-    // =========================
-    public void registerExit(UUID productId, Integer quantity) {
-
-        int currentStock = calculateCurrentStock(productId);
-
-        if (currentStock < quantity) {
-            throw new InsufficientStockException("Insufficient stock for exit");
-        }
-
-        StockMovement movement = new StockMovement(
-                productId,
-                quantity,
-                MovementType.EXIT,
-                OffsetDateTime.now()
-        );
-
-        repository.save(movement);
-    }
-
-    // =========================
-    // SALDO ATUAL
-    // =========================
-    public int calculateCurrentStock(UUID productId) {
-
-        List<StockMovement> movements = repository.findByProductId(productId);
-
-        int stock = 0;
-
-        for (StockMovement movement : movements) {
-            if (movement.getMovementType() == MovementType.ENTRY) {
-                stock += movement.getQuantity();
-            } else {
-                stock -= movement.getQuantity();
-            }
-        }
-
-        return stock;
-    }
-
-    public List<StockMovementReportDTO> generateReport() {
-
-        return repository.findAll()
+    public List<StockMovementResponseDTO> listByProduct(UUID productId) {
+        return stockMovementRepository
+                .findByProductIdOrderByCreatedAtDesc(productId)
                 .stream()
-                .map(movement -> new StockMovementReportDTO(
-                        movement.getProductId(),
-                        movement.getMovementType(),
-                        movement.getQuantity(),
-                        movement.getCreatedAt()
-                ))
+                .map(this::toDTO)
                 .toList();
+    }
+
+    public List<StockMovementResponseDTO> listByProductAndType(
+            UUID productId,
+            MovementType movementType
+    ) {
+        return stockMovementRepository
+                .findByProductIdAndMovementTypeOrderByCreatedAtDesc(productId, movementType)
+                .stream()
+                .map(this::toDTO)
+                .toList();
+    }
+
+    public List<StockMovementResponseDTO> listByPeriod(
+            UUID productId,
+            OffsetDateTime start,
+            OffsetDateTime end
+    ) {
+        return stockMovementRepository
+                .findByProductIdAndCreatedAtBetweenOrderByCreatedAtDesc(
+                        productId,
+                        start,
+                        end
+                )
+                .stream()
+                .map(this::toDTO)
+                .toList();
+    }
+
+    /* =========================
+       CÁLCULO DE ESTOQUE
+       ========================= */
+
+    public int calculateCurrentStock(UUID productId) {
+        return stockMovementRepository
+                .findByProductIdOrderByCreatedAtDesc(productId)
+                .stream()
+                .mapToInt(movement -> {
+                    if (movement.getMovementType() == MovementType.ENTRY) {
+                        return movement.getQuantity();
+                    }
+                    return -movement.getQuantity();
+                })
+                .sum();
+    }
+
+    /* =========================
+       MAPPER
+       ========================= */
+
+    private StockMovementResponseDTO toDTO(StockMovement movement) {
+        return new StockMovementResponseDTO(
+                movement.getId(),
+                movement.getProductId(),
+                movement.getMovementType().name(),
+                movement.getQuantity(),
+                movement.getCreatedAt()
+        );
     }
 }
