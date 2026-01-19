@@ -6,27 +6,27 @@ import jakarta.validation.constraints.NotNull;
 
 public class ProductRequestDTO {
 
-    @NotBlank(message = "Product name is required")
-    private String name;
+    @NotBlank(message = "Nome do produto é obrigatório")
+    private String nome;
 
-    private String description;
+    private String descricao;
 
-    @NotNull(message = "Minimum stock is required")
-    @Min(value = 0, message = "Minimum stock must be zero or greater")
-    private Integer minimumStock;
+    @NotNull(message = "Estoque mínimo é obrigatório")
+    @Min(value = 0, message = "Estoque mínimo deve ser zero ou maior")
+    private Integer estoqueMinimo;
 
     public ProductRequestDTO() {
     }
 
-    public String getName() {
-        return name;
+    public String getNome() {
+        return nome;
     }
 
-    public String getDescription() {
-        return description;
+    public String getDescricao() {
+        return descricao;
     }
 
-    public Integer getMinimumStock() {
-        return minimumStock;
+    public Integer getEstoqueMinimo() {
+        return estoqueMinimo;
     }
 }

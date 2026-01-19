@@ -6,27 +6,26 @@ import java.util.UUID;
 public class ProductWithStockResponseDTO {
 
     private UUID id;
-    private String name;
-    private String description;
-    private Integer minimumStock;
-    private int currentStock;
+    private String nome;
+    private String descricao;
+    private Integer estoqueMinimo;
+    private int quantidadeAtual;
     private boolean active;
     private OffsetDateTime createdAt;
 
     public ProductWithStockResponseDTO(
             UUID id,
-            String name,
-            String description,
-            Integer minimumStock,
-            int currentStock,
+            String nome,
+            String descricao,
+            Integer estoqueMinimo,
+            int quantidadeAtual,
             boolean active,
-            OffsetDateTime createdAt
-    ) {
+            OffsetDateTime createdAt) {
         this.id = id;
-        this.name = name;
-        this.description = description;
-        this.minimumStock = minimumStock;
-        this.currentStock = currentStock;
+        this.nome = nome;
+        this.descricao = descricao;
+        this.estoqueMinimo = estoqueMinimo;
+        this.quantidadeAtual = quantidadeAtual;
         this.active = active;
         this.createdAt = createdAt;
     }
@@ -35,20 +34,20 @@ public class ProductWithStockResponseDTO {
         return id;
     }
 
-    public String getName() {
-        return name;
+    public String getNome() {
+        return nome;
     }
 
-    public String getDescription() {
-        return description;
+    public String getDescricao() {
+        return descricao;
     }
 
-    public Integer getMinimumStock() {
-        return minimumStock;
+    public Integer getEstoqueMinimo() {
+        return estoqueMinimo;
     }
 
-    public int getCurrentStock() {
-        return currentStock;
+    public int getQuantidadeAtual() {
+        return quantidadeAtual;
     }
 
     public boolean isActive() {

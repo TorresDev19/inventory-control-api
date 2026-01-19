@@ -10,19 +10,21 @@ public class StockMovementResponseDTO {
     private String type;
     private Integer quantity;
     private OffsetDateTime createdAt;
+    private String observacao;
 
     public StockMovementResponseDTO(
             UUID id,
             UUID productId,
             String type,
             Integer quantity,
-            OffsetDateTime createdAt
-    ) {
+            OffsetDateTime createdAt,
+            String observacao) {
         this.id = id;
         this.productId = productId;
         this.type = type;
         this.quantity = quantity;
         this.createdAt = createdAt;
+        this.observacao = observacao;
     }
 
     public UUID getId() {
@@ -43,5 +45,9 @@ public class StockMovementResponseDTO {
 
     public OffsetDateTime getCreatedAt() {
         return createdAt;
+    }
+
+    public String getObservacao() {
+        return observacao;
     }
 }

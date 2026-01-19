@@ -5,13 +5,14 @@ import com.torresdev.inventory.dto.product.ProductResponseDTO;
 import com.torresdev.inventory.dto.product.ProductWithStockResponseDTO;
 import com.torresdev.inventory.service.ProductService;
 import jakarta.validation.Valid;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 import java.util.UUID;
 
 @RestController
-@RequestMapping("/api/products")
+@RequestMapping("/api/produtos")
 public class ProductController {
 
     private final ProductService productService;
@@ -21,6 +22,7 @@ public class ProductController {
     }
 
     @PostMapping
+    @PreAuthorize("hasRole('ADMIN')")
     public ProductResponseDTO create(@RequestBody @Valid ProductRequestDTO request) {
         return productService.create(request);
     }
@@ -36,19 +38,20 @@ public class ProductController {
     }
 
     @PutMapping("/{id}")
+    @PreAuthorize("hasRole('ADMIN')")
     public ProductResponseDTO update(
             @PathVariable UUID id,
-            @RequestBody @Valid ProductRequestDTO request
-    ) {
+            @RequestBody @Valid ProductRequestDTO request) {
         return productService.update(id, request);
     }
 
     @DeleteMapping("/{id}")
+    @PreAuthorize("hasRole('ADMIN')")
     public void deactivate(@PathVariable UUID id) {
         productService.deactivate(id);
     }
 
-    @GetMapping("/low-stock")
+    @GetMapping("/estoque-baixo")
     public List<ProductWithStockResponseDTO> lowStock() {
         return productService.listLowStock();
     }

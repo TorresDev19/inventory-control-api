@@ -26,6 +26,9 @@ public class StockMovement {
     @Column(name = "created_at", nullable = false)
     private OffsetDateTime createdAt;
 
+    @Column(name = "observacao")
+    private String observacao;
+
     protected StockMovement() {
     }
 
@@ -33,12 +36,13 @@ public class StockMovement {
             UUID productId,
             Integer quantity,
             MovementType movementType,
-            OffsetDateTime createdAt
-    ) {
+            OffsetDateTime createdAt,
+            String observacao) {
         this.productId = productId;
         this.quantity = quantity;
         this.movementType = movementType;
         this.createdAt = createdAt;
+        this.observacao = observacao;
     }
 
     public UUID getId() {
@@ -59,6 +63,10 @@ public class StockMovement {
 
     public OffsetDateTime getCreatedAt() {
         return createdAt;
+    }
+
+    public String getObservacao() {
+        return observacao;
     }
 
     public boolean isEntry() {

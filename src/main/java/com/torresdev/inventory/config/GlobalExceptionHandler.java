@@ -19,10 +19,9 @@ public class GlobalExceptionHandler {
     public ApiErrorResponse handleProductNotFound(ProductNotFoundException ex) {
         return new ApiErrorResponse(
                 HttpStatus.NOT_FOUND.value(),
-                "Product not found",
+                "Produto não encontrado",
                 ex.getMessage(),
-                OffsetDateTime.now()
-        );
+                OffsetDateTime.now());
     }
 
     // =========================
@@ -32,10 +31,9 @@ public class GlobalExceptionHandler {
     public ApiErrorResponse handleInsufficientStock(InsufficientStockException ex) {
         return new ApiErrorResponse(
                 HttpStatus.BAD_REQUEST.value(),
-                "Insufficient stock",
+                "Estoque insuficiente",
                 ex.getMessage(),
-                OffsetDateTime.now()
-        );
+                OffsetDateTime.now());
     }
 
     // =========================
@@ -45,9 +43,8 @@ public class GlobalExceptionHandler {
     public ApiErrorResponse handleGenericException(Exception ex) {
         return new ApiErrorResponse(
                 HttpStatus.INTERNAL_SERVER_ERROR.value(),
-                "Internal Server Error",
-                "Unexpected internal server error",
-                OffsetDateTime.now()
-        );
+                "Erro Interno do Servidor",
+                "Erro interno inesperado no servidor",
+                OffsetDateTime.now());
     }
 }

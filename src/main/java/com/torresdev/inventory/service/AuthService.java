@@ -16,15 +16,15 @@ public class AuthService {
         this.passwordEncoder = new BCryptPasswordEncoder();
     }
 
-    public void login(String username, String password) {
+    public Profile login(String username, String password) {
         Profile profile = profileRepository
                 .findByUsernameAndActiveTrue(username)
                 .orElseThrow(() -> new RuntimeException("Usuário ou senha inválidos"));
 
-        boolean valid = passwordEncoder.matches(password, profile.getPasswordHash());
-
-        if (!valid) {
+        if (!passwordEncoder.matches(password, profile.getPasswordHash())) {
             throw new RuntimeException("Usuário ou senha inválidos");
         }
+
+        return profile;
     }
 }

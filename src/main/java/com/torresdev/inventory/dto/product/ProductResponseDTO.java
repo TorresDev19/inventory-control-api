@@ -6,24 +6,23 @@ import java.util.UUID;
 public class ProductResponseDTO {
 
     private UUID id;
-    private String name;
-    private String description;
-    private Integer minimumStock;
+    private String nome;
+    private String descricao;
+    private Integer estoqueMinimo;
     private boolean active;
     private OffsetDateTime createdAt;
 
     public ProductResponseDTO(
             UUID id,
-            String name,
-            String description,
-            Integer minimumStock,
+            String nome,
+            String descricao,
+            Integer estoqueMinimo,
             boolean active,
-            OffsetDateTime createdAt
-    ) {
+            OffsetDateTime createdAt) {
         this.id = id;
-        this.name = name;
-        this.description = description;
-        this.minimumStock = minimumStock;
+        this.nome = nome;
+        this.descricao = descricao;
+        this.estoqueMinimo = estoqueMinimo;
         this.active = active;
         this.createdAt = createdAt;
     }
@@ -34,16 +33,16 @@ public class ProductResponseDTO {
         return id;
     }
 
-    public String getName() {
-        return name;
+    public String getNome() {
+        return nome;
     }
 
-    public String getDescription() {
-        return description;
+    public String getDescricao() {
+        return descricao;
     }
 
-    public Integer getMinimumStock() {
-        return minimumStock;
+    public Integer getEstoqueMinimo() {
+        return estoqueMinimo;
     }
 
     public boolean isActive() {

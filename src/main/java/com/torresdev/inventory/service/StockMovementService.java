@@ -19,9 +19,11 @@ public class StockMovementService {
         this.stockMovementRepository = stockMovementRepository;
     }
 
-    /* =========================
-       LISTAGENS
-       ========================= */
+    /*
+     * =========================
+     * LISTAGENS
+     * =========================
+     */
 
     public List<StockMovementResponseDTO> listByProduct(UUID productId) {
         return stockMovementRepository
@@ -33,8 +35,7 @@ public class StockMovementService {
 
     public List<StockMovementResponseDTO> listByProductAndType(
             UUID productId,
-            MovementType movementType
-    ) {
+            MovementType movementType) {
         return stockMovementRepository
                 .findByProductIdAndMovementTypeOrderByCreatedAtDesc(productId, movementType)
                 .stream()
@@ -45,22 +46,50 @@ public class StockMovementService {
     public List<StockMovementResponseDTO> listByPeriod(
             UUID productId,
             OffsetDateTime start,
-            OffsetDateTime end
-    ) {
+            OffsetDateTime end) {
         return stockMovementRepository
                 .findByProductIdAndCreatedAtBetweenOrderByCreatedAtDesc(
                         productId,
                         start,
-                        end
-                )
+                        end)
                 .stream()
                 .map(this::toDTO)
                 .toList();
     }
 
-    /* =========================
-       CÁLCULO DE ESTOQUE
-       ========================= */
+    /*
+     * =========================
+     * CRIAÇÃO DE MOVIMENTAÇÕES
+     * =========================
+     */
+
+    public StockMovementResponseDTO createEntry(UUID productId, Integer quantity, String observacao) {
+        StockMovement movement = new StockMovement(
+                productId,
+                quantity,
+                MovementType.ENTRY,
+                OffsetDateTime.now(),
+                observacao);
+        StockMovement saved = stockMovementRepository.save(movement);
+        return toDTO(saved);
+    }
+
+    public StockMovementResponseDTO createExit(UUID productId, Integer quantity, String observacao) {
+        StockMovement movement = new StockMovement(
+                productId,
+                quantity,
+                MovementType.EXIT,
+                OffsetDateTime.now(),
+                observacao);
+        StockMovement saved = stockMovementRepository.save(movement);
+        return toDTO(saved);
+    }
+
+    /*
+     * =========================
+     * CÁLCULO DE ESTOQUE
+     * =========================
+     */
 
     public int calculateCurrentStock(UUID productId) {
         return stockMovementRepository
@@ -75,9 +104,11 @@ public class StockMovementService {
                 .sum();
     }
 
-    /* =========================
-       MAPPER
-       ========================= */
+    /*
+     * =========================
+     * MAPPER
+     * =========================
+     */
 
     private StockMovementResponseDTO toDTO(StockMovement movement) {
         return new StockMovementResponseDTO(
@@ -85,7 +116,7 @@ public class StockMovementService {
                 movement.getProductId(),
                 movement.getMovementType().name(),
                 movement.getQuantity(),
-                movement.getCreatedAt()
-        );
+                movement.getCreatedAt(),
+                movement.getObservacao());
     }
 }
